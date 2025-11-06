@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Date, Time
+from sqlalchemy import Column, Integer, String, String, Time
 from database.db_setup import Base
 
 class SubjectDB(Base):
@@ -6,5 +6,5 @@ class SubjectDB(Base):
 
     id = Column(Integer, primary_key=True, unique=True, nullable=False)
     name = Column(String, nullable=False)
-    date = Column(Date, nullable=False)
+    day = Column(String, nullable=False)
     time = Column(Time, nullable=False)
