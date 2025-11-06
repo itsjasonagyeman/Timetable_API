@@ -4,6 +4,8 @@ from database.db_setup import SessionLocal
 from models.subject import Subject, SubjectResponse
 from models.subjectDB import SubjectDB
 from typing import List
+from database.db_setup import engine
+import pandas as pd
 
 
 router = APIRouter()
@@ -18,7 +20,7 @@ def get_db():
 
 @router.post('/subject', response_model=SubjectResponse)
 def add_subject(subject: Subject, db: Session = Depends(get_db)):
-    existing_subject = db.query(SubjectDB).filter(SubjectDB.name == subject.name).first()
+    existing_subject = db.query(SubjectDB).filter(SubjectDB.name == subject.name, SubjectDB.day == subject.day, SubjectDB.time == subject.time).first()
     if existing_subject:
         raise HTTPException(status_code=401, detail='Subject has already been added')
     
@@ -76,5 +78,11 @@ def update_subject(subject_id:int, updated_subject:Subject, db: Session = Depend
     
 
     return subject
+
+@router.get('/export-subjects')
+def change_to_spreadsheet():
+    df = pd.read_sql("SELECT * FROM subjects", engine)
+    df.to_excel("subjects.xlsx", index=False)
+    return {'message': 'Created Spreadsheet'}
     
     
