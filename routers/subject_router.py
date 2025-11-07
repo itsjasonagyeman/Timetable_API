@@ -84,5 +84,29 @@ def change_to_spreadsheet():
     df = pd.read_sql("SELECT * FROM subjects", engine)
     df.to_excel("subjects.xlsx", index=False)
     return {'message': 'Created Spreadsheet'}
+
+@router.get('/schedule')
+def generate_schedule():
+    try:
+        df = pd.read_sql("SELECT * FROM subjects", engine)
+
+        df['hour'] = df['time'].apply(lambda t: t.hour)
+
+        hours = {hour: None for hour in range(24)}
+        week_schedule = {day: hours.copy() for day in 
+                         ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']}
+
+        for _, row in df.iterrows():
+            day = row['day']
+            hour = row['hour']
+            name = row['name']
+
+            if day in week_schedule and 0 <= hour < 24:
+                week_schedule[day][hour] = name
+
+        return week_schedule
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error generating schedule: {str(e)}")
     
     
